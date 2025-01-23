@@ -1,90 +1,69 @@
 import os
-import sys
 import pickle
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
-import xgboost as xgb
 
-# Get the absolute path to the project root and add the 'SFC' folder to the path
-script_dir = os.path.dirname(os.path.abspath(__file__))  # Get the absolute path of the current script
-project_root = os.path.abspath(os.path.join(script_dir, '..', '..'))  # Go up two levels to the project root
+# Define the paths to artifacts
+ARTIFACTS_FOLDER = "./artifacts"
 
-# Add 'SFC' directory to the path (from project root)
-sys.path.append(os.path.join(project_root, 'SFC'))
+# Load a saved model
+def load_model(model_name):
+    model_filepath = os.path.join(ARTIFACTS_FOLDER, f"{model_name}.pkl")
+    if not os.path.exists(model_filepath):
+        raise FileNotFoundError(f"The model {model_name} does not exist.")
+    with open(model_filepath, "rb") as f:
+        model = pickle.load(f)
+    return model
 
-# Now you can import your modules
-from prediction_pipeline.btc_data_ingestion_and_preprocessing import preprocess_data as preprocess_btc
-from prediction_pipeline.eth_data_ingestion_and_preprocessing import preprocess_data as preprocess_eth
+# Load a saved scaler
+def load_scaler(scaler_name):
+    scaler_filepath = os.path.join(ARTIFACTS_FOLDER, f"{scaler_name}.pkl")
+    if not os.path.exists(scaler_filepath):
+        raise FileNotFoundError(f"The scaler {scaler_name} does not exist.")
+    with open(scaler_filepath, "rb") as f:
+        scaler = pickle.load(f)
+    return scaler
 
-# Define the paths
-ARTIFACTS_FOLDER = os.path.join(project_root, 'artifacts')
-
-# Load saved models and scalers
-def load_model_and_scalers(currency_name):
-    """Load the saved model and scalers for the given currency."""
-    # Load scalers
-    with open(os.path.join(ARTIFACTS_FOLDER, f"{currency_name}_feature_scaler.pkl"), "rb") as f:
-        feature_scaler = pickle.load(f)
-    
-    with open(os.path.join(ARTIFACTS_FOLDER, f"{currency_name}_target_scaler.pkl"), "rb") as f:
-        target_scaler = pickle.load(f)
-    
-    # Load models
-    with open(os.path.join(ARTIFACTS_FOLDER, f"linear_regression_{currency_name}.pkl"), "rb") as f:
-        lr_model = pickle.load(f)
-    
-    with open(os.path.join(ARTIFACTS_FOLDER, f"xgboost_{currency_name}.pkl"), "rb") as f:
-        xgb_model = pickle.load(f)
-    
-    return lr_model, xgb_model, feature_scaler, target_scaler
-
-def make_prediction(currency_name, input_data):
-    """Make predictions using the trained models and scalers."""
-    # Preprocess the input data (assuming it's a DataFrame)
-    if currency_name == "bitcoin":
-        processed_data = preprocess_btc(input_data)
-    elif currency_name == "ethereum":
-        processed_data = preprocess_eth(input_data)
-    else:
-        raise ValueError("Invalid currency name. Choose 'bitcoin' or 'ethereum'.")
-    
-    # Select features (similar to the model training step)
-    X = processed_data.drop(columns=["close_time", "timestamp", "close"], errors="ignore")
-
+# Predict using the model
+def make_prediction(input_data, model_name, feature_scaler_name, target_scaler_name):
     # Load model and scalers
-    lr_model, xgb_model, feature_scaler, target_scaler = load_model_and_scalers(currency_name)
-
-    # Scale the features using the saved scaler
-    X_scaled = feature_scaler.transform(X)
-
-    # Predict using both models
-    lr_prediction = lr_model.predict(X_scaled)
-    xgb_prediction = xgb_model.predict(X_scaled)
-
-    # Reverse scale the predictions to get the original scale
-    lr_prediction = target_scaler.inverse_transform(lr_prediction.reshape(-1, 1))
-    xgb_prediction = target_scaler.inverse_transform(xgb_prediction.reshape(-1, 1))
-
-    return lr_prediction, xgb_prediction
-
-def main():
-    # Example input data for prediction (replace with actual input data)
-    input_data = pd.DataFrame({
-        # Include the same features as in your processed data (excluding 'close_time', 'timestamp', 'close')
-        "feature_1": [0.5],  # example values
-        "feature_2": [1.2],  # example values
-        # Add more features as required by your model
-    })
+    model = load_model(model_name)
+    feature_scaler = load_scaler(feature_scaler_name)
+    target_scaler = load_scaler(target_scaler_name)
     
-    # Make predictions for Bitcoin
-    lr_prediction_btc, xgb_prediction_btc = make_prediction("bitcoin", input_data)
-    print(f"Linear Regression Prediction for Bitcoin: {lr_prediction_btc}")
-    print(f"XGBoost Prediction for Bitcoin: {xgb_prediction_btc}")
+    # Scale the input data
+    input_scaled = feature_scaler.transform(input_data)
     
-    # Make predictions for Ethereum
-    lr_prediction_eth, xgb_prediction_eth = make_prediction("ethereum", input_data)
-    print(f"Linear Regression Prediction for Ethereum: {lr_prediction_eth}")
-    print(f"XGBoost Prediction for Ethereum: {xgb_prediction_eth}")
+    # Make predictions
+    predictions_scaled = model.predict(input_scaled)
+    
+    # Inverse scale the predictions
+    predictions = target_scaler.inverse_transform(predictions_scaled.reshape(-1, 1))
+    return predictions
 
+# Example usage
 if __name__ == "__main__":
-    main()
+    try:
+        input_data = pd.DataFrame({
+            "open": [99781.89], 
+            "high": [100786.3],
+            "low": [99608.23],
+            "volume": [2207.59419],
+            "quote_asset_volume": [221303048.919697],
+            "number_of_trades": [472723],
+            "taker_buy_base_asset_volume": [1125.00115],
+            "taker_buy_quote_asset_volume": [112761937.89211]
+        })
+        
+        # Specify model and scaler names
+        model_name = "xgboost_btc"  # Change to your model's name
+        feature_scaler_name = "bitcoin_feature_scaler"
+        target_scaler_name = "bitcoin_target_scaler"
+        
+        # Make predictions
+        predictions = make_prediction(input_data, model_name, feature_scaler_name, target_scaler_name)
+        
+        print(f"Predicted 'close' value: {predictions[0][0]}")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")

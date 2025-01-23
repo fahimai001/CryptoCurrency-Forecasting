@@ -23,7 +23,7 @@ def load_data(filepath):
         raise FileNotFoundError(f"The file {filepath} does not exist.")
     return pd.read_csv(filepath)
 
-# Example preprocessing functions (replace with your own)
+# preprocessing functions which will be used for removing null values
 def preprocess_data(data):
     """Preprocessing example (replace with your actual preprocessing)."""
     # Example: Drop missing values, handle categorical features, etc.
@@ -34,7 +34,7 @@ def preprocess_and_split_data(currency_name, preprocess_func):
     """Preprocess data and split into train and test sets."""
     print(f"Processing {currency_name} data...")
 
-    # Load raw data (replace with actual raw data path)
+    # Load raw data
     raw_data = load_data(os.path.join(PROCESSED_DATA_FOLDER, f"{currency_name}_processed.csv"))
 
     # Preprocess data using provided function
@@ -97,11 +97,11 @@ def train_and_evaluate_model(X_train, X_test, y_train, y_test, model_type, model
 
 def main():
     try:
-        # Process and prepare data for Bitcoin (replace with actual preprocessing function)
+        # Process and prepare data for Bitcoin 
         print("Preparing Bitcoin data...")
         X_train_btc, X_test_btc, y_train_btc, y_test_btc = preprocess_and_split_data("bitcoin", preprocess_data)
 
-        # Process and prepare data for Ethereum (replace with actual preprocessing function)
+        # Process and prepare data for Ethereum 
         print("Preparing Ethereum data...")
         X_train_eth, X_test_eth, y_train_eth, y_test_eth = preprocess_and_split_data("ethereum", preprocess_data)
 
