@@ -26,7 +26,6 @@ def preprocess_data(df):
     
     # Additional preprocessing steps can be added here
     df = df.drop(columns=["ignore"], errors="ignore")  # Drop unnecessary columns
-    df["timestamp"] = pd.to_datetime(df["timestamp"])  # Ensure timestamp is datetime
     
     return df
 

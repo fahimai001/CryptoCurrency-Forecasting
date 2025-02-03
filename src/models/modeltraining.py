@@ -21,7 +21,7 @@ from prediction_pipeline.eth_data_ingestion_and_preprocessing import preprocess_
 
 # Define the paths
 RAW_DATA_FOLDER = "../../data/raw_data"
-PROCESSED_DATA_FOLDER = "../../data/processed_data"
+PROCESSED_DATA_FOLDER = "../../data/processed_data.csv"
 ARTIFACTS_FOLDER = "../../artifacts"
 
 # Create folders if they don't exist
@@ -36,17 +36,21 @@ def load_data(filepath):
 def preprocess_and_split_data(currency_name, preprocess_func):
     """Preprocess data and split into train and test sets."""
     print(f"Processing {currency_name} data...")
-    raw_data = load_data(os.path.join(PROCESSED_DATA_FOLDER, f"{currency_name}_processed.csv"))
+    raw_data = load_data(os.path.join("../../data/processed_data", "bitcoin_selected_features.csv"))
     
     # Preprocess data
     processed_data = preprocess_func(raw_data)
     
     # Select features and target
-    X = processed_data.drop(columns=["close_time", "timestamp", "close"], errors="ignore")
+    X = processed_data.drop(columns=["close"], errors="ignore")
     y = processed_data["close"]
     
     # Split into train and test
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    scaler = MinMaxScaler()
+    X_scaled = scaler.fit_transform(X)
+    split_index = int(len(raw_data) * 0.8)
+    X_train, X_test = X_scaled[:split_index], X_scaled[split_index:]
+    y_train, y_test = y[:split_index], y[split_index:]
     
     # Scaling features
     feature_scaler = MinMaxScaler()
