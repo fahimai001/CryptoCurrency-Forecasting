@@ -37,7 +37,7 @@ def save_preprocessed_data(df, filename):
 
 def main():
     # Fetch Bitcoin data using the data_ingestion script
-    bitcoin_filepath = os.path.join(RAW_DATA_FOLDER, "bitcoin_selected_features.csv")
+    bitcoin_filepath = os.path.join(RAW_DATA_FOLDER, "bitcoin_processed.csv")
     
     # If the raw data doesn't exist, fetch and save it
     if not os.path.exists(bitcoin_filepath):
@@ -54,7 +54,7 @@ def main():
     processed_df = preprocess_data(raw_df)
     
     # Save the preprocessed data
-    save_preprocessed_data(processed_df, "bitcoin_selected_features.csv")
+    save_preprocessed_data(processed_df, "bitcoin_processed.csv")
 
 if __name__ == "__main__":
     main()

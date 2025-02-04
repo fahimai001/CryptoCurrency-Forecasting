@@ -1,10 +1,9 @@
 import sys
+import numpy as np
 import os
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 import xgboost as xgb
 import pickle
 
@@ -21,7 +20,7 @@ from prediction_pipeline.eth_data_ingestion_and_preprocessing import preprocess_
 
 # Define the paths
 RAW_DATA_FOLDER = "../../data/raw_data"
-PROCESSED_DATA_FOLDER = "../../data/processed_data.csv"
+PROCESSED_DATA_FOLDER = "../../data/processed_data"
 ARTIFACTS_FOLDER = "../../artifacts"
 
 # Create folders if they don't exist
@@ -36,7 +35,7 @@ def load_data(filepath):
 def preprocess_and_split_data(currency_name, preprocess_func):
     """Preprocess data and split into train and test sets."""
     print(f"Processing {currency_name} data...")
-    raw_data = load_data(os.path.join("../../data/processed_data", "bitcoin_selected_features.csv"))
+    raw_data = load_data(os.path.join(PROCESSED_DATA_FOLDER, f"{currency_name}_processed.csv"))
     
     # Preprocess data
     processed_data = preprocess_func(raw_data)
@@ -46,29 +45,12 @@ def preprocess_and_split_data(currency_name, preprocess_func):
     y = processed_data["close"]
     
     # Split into train and test
-    scaler = MinMaxScaler()
-    X_scaled = scaler.fit_transform(X)
-    split_index = int(len(raw_data) * 0.8)
-    X_train, X_test = X_scaled[:split_index], X_scaled[split_index:]
+    split_index = int(len(processed_data) * 0.8)
+    X_train, X_test = X[:split_index], X[split_index:]
     y_train, y_test = y[:split_index], y[split_index:]
     
-    # Scaling features
-    feature_scaler = MinMaxScaler()
-    X_train_scaled = feature_scaler.fit_transform(X_train)
-    X_test_scaled = feature_scaler.transform(X_test)
-    
-    # Scaling target
-    target_scaler = MinMaxScaler()
-    y_train_scaled = target_scaler.fit_transform(y_train.values.reshape(-1, 1))
-    y_test_scaled = target_scaler.transform(y_test.values.reshape(-1, 1))
-    
-    # Save scalers
-    with open(os.path.join(ARTIFACTS_FOLDER, f"{currency_name}_feature_scaler.pkl"), "wb") as f:
-        pickle.dump(feature_scaler, f)
-    with open(os.path.join(ARTIFACTS_FOLDER, f"{currency_name}_target_scaler.pkl"), "wb") as f:
-        pickle.dump(target_scaler, f)
-    
-    return X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled
+    # Return unmodified data (no scaling applied)
+    return X_train, X_test, y_train, y_test
 
 def train_and_evaluate_model(X_train, X_test, y_train, y_test, model_type, model_name):
     """Train a model, evaluate and save it to Artifacts."""
@@ -89,9 +71,9 @@ def train_and_evaluate_model(X_train, X_test, y_train, y_test, model_type, model
     # Evaluation metrics
     mae = mean_absolute_error(y_test, y_pred)
     mse = mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-    
-    print(f"{model_name} - MAE: {mae}, MSE: {mse}, R2: {r2}")
+    rmse = np.sqrt(mse)
+
+    print(f"{model_name} - MAE: {mae}, MSE: {mse}, RMSE: {rmse}")
     
     # Save the model to Artifacts
     model_filepath = os.path.join(ARTIFACTS_FOLDER, f"{model_name}.pkl")
