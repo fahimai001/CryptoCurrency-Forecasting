@@ -4,21 +4,19 @@ import requests
 import pandas as pd
 from datetime import datetime, timedelta
 
-# Add paths for module imports
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Data_Preprocessing')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'models')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from src.Data_Preprocessing.data_ingestion import fetch_data, save_data_to_csv
 
-# Parameters
 SYMBOLS = {
     "bitcoin": "BTCUSDT",
     "ethereum": "ETHUSDT"
 }
-INTERVAL = "1d"  # Collecting data on a daily basis
+INTERVAL = "1d"
 
-# Output folders
 RAW_DATA_FOLDER = "../../data/raw_data"
 PROCESSED_DATA_FOLDER = "../../data/processed_data"
 os.makedirs(RAW_DATA_FOLDER, exist_ok=True)
@@ -33,7 +31,7 @@ def load_data(filepath):
 def preprocess_data(df):
     """Preprocess the data by handling missing values and other cleaning steps."""
     df = df.dropna()
-    df = df.drop(columns=["ignore"], errors="ignore")  # Drop unnecessary columns
+    df = df.drop(columns=["ignore"], errors="ignore") 
     return df
 
 def save_preprocessed_data(df, filename):

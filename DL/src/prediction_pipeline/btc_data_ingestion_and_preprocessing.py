@@ -3,16 +3,15 @@ import requests
 import pandas as pd
 from datetime import datetime, timedelta
 
-# Parameters
 SYMBOLS = {
     "bitcoin": "BTCUSDT",
     "ethereum": "ETHUSDT"
 }
-INTERVAL = "1d"  # Collecting data on a daily basis
+INTERVAL = "1d"  
 
 BASE_URL = "https://api.binance.com/api/v3/klines"
 
-# Output folder
+
 RAW_DATA_FOLDER = "../../data/raw_data"
 os.makedirs(RAW_DATA_FOLDER, exist_ok=True)
 
@@ -27,7 +26,7 @@ def fetch_data(symbol, interval, start_time, end_time, limit=1000):
     }
     try:
         response = requests.get(BASE_URL, params=params)
-        response.raise_for_status()  # Raise error for bad responses
+        response.raise_for_status() 
         data = response.json()
         
         if not data:
@@ -68,8 +67,8 @@ def save_data_to_csv(df, filename):
     print(f"Data successfully saved to {filename}")
 
 def main():
-    start_date = datetime(2024, 2, 1)  # Start from 1st Feb 2024
-    end_date = datetime(2025, 2, 4)  # Collect data up to 4th Feb 2025
+    start_date = datetime(2024, 2, 1) 
+    end_date = datetime(2025, 2, 4) 
     start_time = int(start_date.timestamp() * 1000)
     end_time = int(end_date.timestamp() * 1000)
     
