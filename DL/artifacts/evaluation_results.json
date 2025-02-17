@@ -1,50 +1,32 @@
 {
     "LightGBM Bitcoin": {
-        "MSE": 0.05285293308401793,
-        "MAE": 0.17270436893814642,
-        "RMSE": 0.22989765784804753,
         "MSE (Actual Values)": 463724.1659616496,
         "MAE (Actual Values)": 511.5624301006155,
         "RMSE (Actual Values)": 680.9729553819664
     },
     "LightGBM Ethereum": {
-        "MSE": 0.0017058101449169297,
-        "MAE": 0.03186507487099153,
-        "RMSE": 0.04130145451333318,
         "MSE (Actual Values)": 14966.537154769918,
         "MAE (Actual Values)": 94.3865823231178,
         "RMSE (Actual Values)": 122.33779937030876
     },
     "RNN Bitcoin": {
-        "MSE": 0.07657583057880402,
-        "MAE": 0.24366651475429535,
-        "RMSE": 0.27672338278288666,
-        "MSE (Actual Values)": 671865.4375,
-        "MAE (Actual Values)": 721.7572021484375,
-        "RMSE (Actual Values)": 819.6739824466798
+        "MSE (Actual Values)": 29244.498046875,
+        "MAE (Actual Values)": 140.62767028808594,
+        "RMSE (Actual Values)": 171.01022790135974
     },
     "RNN Ethereum": {
-        "MSE": 0.0072812270373106,
-        "MAE": 0.06376314163208008,
-        "RMSE": 0.08533010627738957,
-        "MSE (Actual Values)": 63884.45703125,
-        "MAE (Actual Values)": 188.87088012695312,
-        "RMSE (Actual Values)": 252.75374780851422
+        "MSE (Actual Values)": 55156.25,
+        "MAE (Actual Values)": 172.40782165527344,
+        "RMSE (Actual Values)": 234.8536778506992
     },
     "LSTM Bitcoin": {
-        "MSE": 0.00376626243814826,
-        "MAE": 0.04904190078377724,
-        "RMSE": 0.06136988217479532,
-        "MSE (Actual Values)": 33044.65625,
-        "MAE (Actual Values)": 145.26553344726562,
-        "RMSE (Actual Values)": 181.78189197497093
+        "MSE (Actual Values)": 15977.716796875,
+        "MAE (Actual Values)": 94.98023223876953,
+        "RMSE (Actual Values)": 126.40299362307445
     },
     "LSTM Ethereum": {
-        "MSE": 0.005432300269603729,
-        "MAE": 0.05470862239599228,
-        "RMSE": 0.07370414011169067,
-        "MSE (Actual Values)": 47662.22265625,
-        "MAE (Actual Values)": 162.05075073242188,
-        "RMSE (Actual Values)": 218.3167942606569
+        "MSE (Actual Values)": 56638.6640625,
+        "MAE (Actual Values)": 180.09600830078125,
+        "RMSE (Actual Values)": 237.98878978325848
     }
 }

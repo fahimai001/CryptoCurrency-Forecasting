@@ -1,14 +1,12 @@
 import os
 import torch
+import pandas as pd
 import requests
 import datetime
 import numpy as np
-import pandas as pd
-from torch.utils.data import DataLoader, Dataset
-from sklearn.preprocessing import MinMaxScaler
-import pickle
+from torch.utils.data import Dataset, DataLoader
 
-ARTIFACTS_DIR = "../DL/artifacts"
+ARTIFACTS_FOLDER = "../DL/artifacts"
 LOG_FILE = "../DL/predictions.log"
 BINANCE_API_URL = "https://api.binance.com/api/v3/klines"
 INTERVAL = "1d"
@@ -59,7 +57,7 @@ class LSTMModel(torch.nn.Module):
 
 def load_model(model_name, model_class, input_size, hidden_size, num_layers, output_size):
     try:
-        model_filepath = os.path.join(ARTIFACTS_DIR, f"{model_name}.pth")
+        model_filepath = os.path.join(ARTIFACTS_FOLDER, f"{model_name}.pth")
         model = model_class(input_size, hidden_size, num_layers, output_size)
         model.load_state_dict(torch.load(model_filepath))
         model.eval()
@@ -71,7 +69,7 @@ def load_model(model_name, model_class, input_size, hidden_size, num_layers, out
         print(f"Error loading model {model_name}: {str(e)}")
         raise
 
-def fetch_binance_data(symbol, limit=50, start_time=None, end_time=None):
+def fetch_binance_data(symbol, limit=100, start_time=None, end_time=None):
     try:
         params = {"symbol": symbol, "interval": INTERVAL, "limit": limit}
         if start_time:
@@ -87,24 +85,26 @@ def fetch_binance_data(symbol, limit=50, start_time=None, end_time=None):
             "open": float(d[1]),
             "high": float(d[2]),
             "low": float(d[3]),
-            "volume": float(d[4]),
-            "quote_asset_volume": float(d[5]),
-            "number_of_trades": int(float(d[6])),
-            "taker_buy_base_asset_volume": float(d[7]),
-            "taker_buy_quote_asset_volume": float(d[8]),
-            "average_price": float(d[9]),
-            "price_change": float(d[10])
+            "close": float(d[4]),
+            "volume": float(d[5]),
+            "quote_asset_volume": float(d[6]),
+            "number_of_trades": int(float(d[7])),
+            "taker_buy_base_asset_volume": float(d[8]),
+            "taker_buy_quote_asset_volume": float(d[9]),
+            "average_price": (float(d[2]) + float(d[3])) / 2,
+            "price_change": float(d[4]) - float(d[1])
         } for d in data])
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from Binance API: {str(e)}")
         raise
 
-def prepare_features(df, scaler):
-    features = ['open', 'high', 'low', 'volume', 'quote_asset_volume',
-                'number_of_trades', 'taker_buy_base_asset_volume',
-                'taker_buy_quote_asset_volume', 'average_price', 'price_change']
-    df[features] = scaler.transform(df[features])
-    return df[features]
+def prepare_features(df):
+    expected_features = [
+        "open", "high", "low", "volume", "quote_asset_volume",
+        "number_of_trades", "taker_buy_base_asset_volume",
+        "taker_buy_quote_asset_volume", "average_price", "price_change"
+    ]
+    return df[expected_features]
 
 def create_sequences(data, seq_length):
     X = []
@@ -120,7 +120,7 @@ def log_prediction(predictions):
         for timestamp, symbol, prediction in predictions:
             f.write(f"{timestamp}, {symbol}, Predicted close: {prediction}\n")
 
-def make_prediction(symbol, model_name, model_class, input_size, hidden_size, num_layers, output_size, scaler):
+def make_prediction(symbol, model_name, model_class, input_size, hidden_size, num_layers, output_size):
     try:
         model = load_model(model_name, model_class, input_size, hidden_size, num_layers, output_size)
         
@@ -128,7 +128,7 @@ def make_prediction(symbol, model_name, model_class, input_size, hidden_size, nu
         start_time = end_time - (PREDICTION_DAYS * 24 * 60 * 60 * 1000)
         
         input_data = fetch_binance_data(symbol, start_time=start_time, end_time=end_time)
-        features = prepare_features(input_data, scaler)
+        features = prepare_features(input_data)
 
         if features.empty:
             raise ValueError(f"No data available for {symbol}.")
@@ -139,11 +139,11 @@ def make_prediction(symbol, model_name, model_class, input_size, hidden_size, nu
         future_predictions = []
         for _ in range(PREDICTION_DAYS):
             with torch.no_grad():
-                prediction = model(sequences[-1:].unsqueeze(0)).item()
+                prediction = model(sequences[-1].unsqueeze(0)).item()
                 future_predictions.append(prediction)
 
-                new_row = np.append(sequences[-1, 1:].numpy(), prediction).reshape(1, -1)
-                sequences = torch.cat([sequences, torch.tensor(new_row, dtype=torch.float32).unsqueeze(0)], dim=0)
+                new_row = np.append(sequences[-1].numpy()[1:], prediction).reshape(1, -1)
+                sequences = torch.cat([sequences, torch.tensor(new_row, dtype=torch.float32).unsqueeze(0)])
 
         future_dates = generate_future_dates(datetime.datetime.now(), PREDICTION_DAYS)
         return list(zip(future_dates, [symbol] * PREDICTION_DAYS, future_predictions))
@@ -166,22 +166,16 @@ if __name__ == "__main__":
     output_size = 1
 
     try:
-        scaler = MinMaxScaler()
-        scaler_filepath = os.path.join(ARTIFACTS_DIR, "scaler.pkl")
-        with open(scaler_filepath, "rb") as f:
-            scaler = pickle.load(f)
-
         all_predictions = []
         for crypto in cryptos:
             predictions = make_prediction(
-                crypto["symbol"], 
-                crypto["model"], 
-                crypto["model_class"], 
-                input_size, 
-                hidden_size, 
-                num_layers, 
-                output_size, 
-                scaler
+                crypto["symbol"],
+                crypto["model"],
+                crypto["model_class"],
+                input_size,
+                hidden_size,
+                num_layers,
+                output_size
             )
             all_predictions.extend(predictions)
         
