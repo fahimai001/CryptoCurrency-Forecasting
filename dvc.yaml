@@ -5,3 +5,10 @@ stages:
     - src/data/data_ingestion.py
     outs:
     - data/external
+  data_preprocessing:
+    cmd: python src/data/data_preprocessing.py
+    deps:
+    - data/external
+    - src/data/data_preprocessing.py
+    outs:
+    - data/interim
