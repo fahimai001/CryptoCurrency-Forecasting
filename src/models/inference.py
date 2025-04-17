@@ -28,10 +28,8 @@ def prepare_features(kline):
     }])
 
 def predict_next_close(symbol):
-    # derive prefix from symbol
-    prefix = symbol[:3].lower()  # 'btc' or 'eth'
+    prefix = symbol[:3].lower() 
     
-    # load scaler and models
     scaler_path = os.path.join('artifacts', f'{prefix}_scaler.pkl')
     xgb_path    = os.path.join('artifacts', f'{prefix}_xgboost.pkl')
     lr_path     = os.path.join('artifacts', f'{prefix}_linear.pkl')
@@ -43,15 +41,12 @@ def predict_next_close(symbol):
     with open(lr_path, 'rb') as f:
         lr = pickle.load(f)
 
-    # fetch and prepare
     kline = fetch_realtime_data(symbol)
     features = prepare_features(kline)
     
-    # convert to numpy array to match how scaler was fitted
     features_array = features.values
     scaled_features = scaler.transform(features_array)
 
-    # make predictions
     xgb_pred = float(xgb.predict(scaled_features)[0])
     lr_pred  = float(lr.predict(scaled_features)[0])
     timestamp = datetime.now(timezone.utc).isoformat()
