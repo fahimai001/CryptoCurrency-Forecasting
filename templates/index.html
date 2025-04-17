@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Price Predictor</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Crypto Price Prediction</h1>
+        
+        <form method="POST" action="/">
+            <div class="form-group">
+                <label for="date">Select Date:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="dataset">Select Cryptocurrency:</label>
+                <select id="dataset" name="dataset" required>
+                    <option value="BTCUSDT">Bitcoin (BTC)</option>
+                    <option value="ETHUSDT">Ethereum (ETH)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="model">Select Model:</label>
+                <select id="model" name="model" required>
+                    <option value="linear">Linear Regression</option>
+                    <option value="xgboost">XGBoost</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="predict-btn">Predict Next Day Close</button>
+        </form>
+
+        {% if prediction %}
+        <div class="result">
+            <h2>Prediction Result</h2>
+            <p>Selected Date: <strong>{{ selected_date }}</strong></p>
+            <p>Prediction for <strong>{{ next_day }}</strong>:</p>
+            <div class="prediction-value">
+                ${{ prediction }}
+            </div>
+            <p class="model-info">Using {{ model|upper }} model for {{ symbol }}</p>
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="error">
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
