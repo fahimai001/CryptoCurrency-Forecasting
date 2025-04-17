@@ -77,10 +77,10 @@ stages:
       nfiles: 6
     - path: src/models/inference.py
       hash: md5
-      md5: 1352d8e5c2cfcb4f76692cb3c46d3fa3
-      size: 3456
+      md5: f3c6b2ec3827e49a65a2b76a463db308
+      size: 3266
     outs:
     - path: prediction.json
       hash: md5
-      md5: 1094cae74534e8ad6891063a96efd89f
-      size: 397
+      md5: 4dd5d809418361b312c98e56c772ced9
+      size: 393
