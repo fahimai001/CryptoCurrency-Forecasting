@@ -67,3 +67,20 @@ stages:
       md5: 50586187a22cec1f1d36bcf7d58cbc83.dir
       size: 2936038
       nfiles: 6
+  inference:
+    cmd: python src/models/inference.py
+    deps:
+    - path: artifacts/
+      hash: md5
+      md5: 50586187a22cec1f1d36bcf7d58cbc83.dir
+      size: 2936038
+      nfiles: 6
+    - path: src/models/inference.py
+      hash: md5
+      md5: 1352d8e5c2cfcb4f76692cb3c46d3fa3
+      size: 3456
+    outs:
+    - path: prediction.json
+      hash: md5
+      md5: 1094cae74534e8ad6891063a96efd89f
+      size: 397

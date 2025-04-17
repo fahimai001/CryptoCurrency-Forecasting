@@ -26,3 +26,10 @@ stages:
     - src/models/model_training.py
     outs:
     - artifacts/
+  inference:
+    cmd: python src/models/inference.py
+    deps:
+    - artifacts/
+    - src/models/inference.py
+    outs:
+    - prediction.json
