@@ -15,6 +15,9 @@ def process_dataset(input_filename: str, output_filename: str) -> None:
     
     df = pd.read_csv(interim_path)
     df['target'] = df['Close'].shift(-1)
+    df.dropna(inplace=True)
+    df.drop(columns=['Close', 'Volume', 'Taker buy base asset volume'], inplace=True)
+    df['price_range'] = df['High'] - df['Low']
     
     output_path = processed_dir / output_filename
     df.to_csv(output_path, index=False)

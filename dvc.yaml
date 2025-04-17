@@ -19,3 +19,10 @@ stages:
     - src/features/feature_engineering.py
     outs:
     - data/processed
+  model_training:
+    cmd: python src/models/model_training.py
+    deps:
+    - data/processed
+    - src/models/model_training.py
+    outs:
+    - artifacts/
