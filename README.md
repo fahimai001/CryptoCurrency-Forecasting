@@ -54,4 +54,90 @@ Project Organization
 
 --------
 
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+
+# 🚀 Cryptocurrency Price Forecasting
+
+A powerful machine learning application that predicts the next day's closing prices for Bitcoin and Ethereum using state-of-the-art algorithms.
+
+## ✨ Features
+
+- **Price Prediction**: Forecasts the next day's closing prices for Bitcoin and Ethereum
+- **Multiple ML Models**: Implements Linear Regression and XGBoost algorithms
+- **DVC Integration**: Complete data and model pipeline management for reproducibility
+- **REST API**: Flask-based API for easy integration with other applications
+- **User-friendly Interface**: Simple UI for quick predictions
+
+## 📊 Project Overview
+
+This project leverages machine learning to analyze historical cryptocurrency price data and generate accurate forecasts. The system has been trained on extensive historical data and uses feature engineering to capture market patterns and trends.
+
+![Application Interface](btc_eth.png)
+
+## 🧠 Models
+
+The project implements two high-performing machine learning models:
+
+1. **Linear Regression**: Simple yet effective for capturing linear relationships in price movements
+2. **XGBoost**: Advanced gradient boosting algorithm that excels at capturing complex patterns
+
+After extensive testing, these models demonstrated the highest predictive accuracy for cryptocurrency price forecasting.
+
+## 🛠️ Technology Stack
+
+- **Python**: Core programming language
+- **Pandas & NumPy**: Data processing and manipulation
+- **Scikit-learn & XGBoost**: Machine learning implementations
+- **DVC**: Data Version Control for ML pipeline management
+- **Flask**: API framework
+- **Plotly/Matplotlib**: Data visualization
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.8+
+- Git
+- DVC
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/fahimai001/CryptoCurrency-Forecasting
+   cd Crypto-Forecasting
+
+
+2. Create and activate a virtual environment:
+python -m venv venv
+# On Windows
+venv\Scripts\activate
+# On macOS/Linux
+source venv/bin/activate
+
+
+3. Install dependencies:
+`pip install -r requirements.txt`
+
+4. Pull the data and models using DVC:
+`dvc pull`
+
+# Running the Application
+1. Start the Flask server:
+    `python app.py`
+
+2. Open your browser and navigate to:
+    http://localhost:5000
+
+# 🔄 DVC Pipeline
+
+1. Data acquisition
+2. Data preprocessing
+3. Feature engineering
+4. Model training
+5. Model evaluation
+
+To reproduce the pipeline:
+    `dvc repro`
+
+------------------------------------
+Feel free to Contribute
