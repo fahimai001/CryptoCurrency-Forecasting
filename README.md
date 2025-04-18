@@ -71,7 +71,7 @@ A powerful machine learning application that predicts the next day's closing pri
 
 This project leverages machine learning to analyze historical cryptocurrency price data and generate accurate forecasts. The system has been trained on extensive historical data and uses feature engineering to capture market patterns and trends.
 
-![Application Interface](btc_eth.png)
+![Application Interface](eth_btc.png)
 
 ## 🧠 Models
 
