@@ -24,6 +24,16 @@ stages:
     deps:
     - data/processed
     - src/models/model_training.py
+    params:
+    - model_training.n_estimators
+    - model_training.max_depth
+    - model_training.learning_rate
+    - model_training.subsample
+    - model_training.colsample_bytree
+    - model_training.min_child_weight
+    - model_training.gamma
+    - model_training.reg_alpha
+    - model_training.reg_lambda
     outs:
     - artifacts/
   inference:

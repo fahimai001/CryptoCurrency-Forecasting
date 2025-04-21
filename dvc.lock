@@ -59,8 +59,19 @@ stages:
       nfiles: 2
     - path: src/models/model_training.py
       hash: md5
-      md5: d7dd3ff486d0f56808c757718cab79bf
-      size: 4087
+      md5: d79d8c556f9e26fae1ae8cc26795b105
+      size: 5018
+    params:
+      params.yaml:
+        model_training.colsample_bytree: uniform(0.6, 0.4)
+        model_training.gamma: uniform(0, 0.5)
+        model_training.learning_rate: uniform(0.01, 0.3)
+        model_training.max_depth: randint(3, 10)
+        model_training.min_child_weight: randint(1, 10)
+        model_training.n_estimators: randint(100, 1000)
+        model_training.reg_alpha: uniform(0, 2)
+        model_training.reg_lambda: uniform(0.5, 2)
+        model_training.subsample: uniform(0.6, 0.4)
     outs:
     - path: artifacts/
       hash: md5

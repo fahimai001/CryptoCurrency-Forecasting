@@ -1,0 +1,10 @@
+model_training:
+  n_estimators: randint(100, 1000)
+  max_depth: randint(3, 10)
+  learning_rate: uniform(0.01, 0.3)
+  subsample: uniform(0.6, 0.4)
+  colsample_bytree: uniform(0.6, 0.4)
+  min_child_weight: randint(1, 10)
+  gamma: uniform(0, 0.5)
+  reg_alpha: uniform(0, 2)
+  reg_lambda: uniform(0.5, 2)
