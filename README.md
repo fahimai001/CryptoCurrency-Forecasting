@@ -140,4 +140,4 @@ To reproduce the pipeline:
     `dvc repro`
 
 ------------------------------------
-Feel free to Contribute
+Feel free to contribute
