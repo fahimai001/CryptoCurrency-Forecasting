@@ -4,7 +4,7 @@ Script to collect historical data for Bitcoin and Ethereum from Binance API
 import os
 import pandas as pd
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 
 def get_binance_klines(symbol, interval='1d', start_time=None, end_time=None):
@@ -33,10 +33,13 @@ def get_binance_klines(symbol, interval='1d', start_time=None, end_time=None):
 
 def fetch_all_historical_data(symbol, interval='1d', start_date="2017-01-01"):
     """
-    Fetch all historical data from start_date to now
+    Fetch all historical data from start_date to yesterday
     """
     start_ts = int(datetime.strptime(start_date, "%Y-%m-%d").timestamp() * 1000)
-    end_ts = int(datetime.now().timestamp() * 1000)
+    
+    # Fetch up to yesterday instead of now
+    end_date = datetime.now() - timedelta(days=1)
+    end_ts = int(end_date.timestamp() * 1000)
 
     all_klines = []
     current_start = start_ts
