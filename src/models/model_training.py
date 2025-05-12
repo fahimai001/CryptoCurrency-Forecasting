@@ -10,15 +10,14 @@ from scipy.stats import uniform, randint
 import pickle
 import yaml
 
-# Load and parse hyperparameter distributions from params.yaml
 def load_param_distributions(section_name: str):
     raw = yaml.safe_load(open("params.yaml", "r"))
     raw_params = raw.get(section_name, {})
     parsed = {}
-    # Evaluate string expressions into actual scipy.stats distributions or lists
+
     for k, v in raw_params.items():
         if isinstance(v, str):
-            # Safe eval with only allowed names
+
             parsed[k] = eval(v, {"randint": randint, "uniform": uniform})
         else:
             parsed[k] = v
@@ -26,7 +25,7 @@ def load_param_distributions(section_name: str):
 
 params = load_param_distributions('model_training')
 
-# Ensure artifacts directory exists
+
 def ensure_artifacts_dir():
     os.makedirs("artifacts", exist_ok=True)
 
@@ -50,19 +49,16 @@ def train_and_evaluate(name, csv_path):
     X = df.drop(columns=["target"]).values
     y = df["target"].values
 
-    # Train/test split
     split_idx = int(0.8 * len(X))
     X_train, X_test = X[:split_idx], X[split_idx:]
     y_train, y_test = y[:split_idx], y[split_idx:]
 
-    # Scaling
     scaler = MinMaxScaler()
     X_train_s = scaler.fit_transform(X_train)
     X_test_s = scaler.transform(X_test)
 
     cv = KFold(n_splits=5, shuffle=True, random_state=42)
 
-    # Base XGBoost model
     xgb_base = XGBRegressor(objective='reg:squarederror', random_state=42, tree_method='hist')
     param_distributions = {
         'n_estimators': params['n_estimators'],
@@ -76,7 +72,6 @@ def train_and_evaluate(name, csv_path):
         'reg_lambda': params['reg_lambda']
     }
 
-    # Randomized search for hyperparameter tuning
     xgb_rs = RandomizedSearchCV(
         xgb_base,
         param_distributions=param_distributions,
@@ -89,7 +84,6 @@ def train_and_evaluate(name, csv_path):
     )
     xgb_rs.fit(X_train_s, y_train)
 
-    # Best parameters
     best_params = xgb_rs.best_params_
     print("Best XGB params:")
     for k, v in best_params.items():
@@ -97,20 +91,16 @@ def train_and_evaluate(name, csv_path):
     print(f"Best XGB CV MSE: {-xgb_rs.best_score_:.4f}")
     print("-" * 60)
 
-    # Final models
     xgb_final = XGBRegressor(**best_params, objective='reg:squarederror', random_state=42)
     xgb_final.fit(X_train_s, y_train)
     lr = LinearRegression().fit(X_train_s, y_train)
 
-    # Predictions
     xgb_pred = xgb_final.predict(X_test_s)
     lr_pred = lr.predict(X_test_s)
 
-    # Evaluation
     rmse_xgb = evaluate_model("XGBoost", y_test, xgb_pred)
     rmse_lr = evaluate_model("LinearRegression", y_test, lr_pred)
 
-    # Cross-validated RMSE
     all_X_s = np.vstack([X_train_s, X_test_s])
     all_y = np.concatenate([y_train, y_test])
     xgb_cv_rmse = np.sqrt(-cross_val_score(
@@ -123,7 +113,6 @@ def train_and_evaluate(name, csv_path):
     print(f"XGBoost 5‑fold CV RMSE: {xgb_cv_rmse:.4f}")
     print("\n" + "="*50 + "\n")
 
-    # Save artifacts
     prefix = 'btc' if name.lower() == 'bitcoin' else 'eth'
     pickle.dump(xgb_final, open(f"artifacts/{prefix}_xgboost.pkl", "wb"))
     pickle.dump(lr, open(f"artifacts/{prefix}_linear.pkl", "wb"))
