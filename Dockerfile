@@ -1,13 +1,15 @@
 FROM python:3.9-slim
-# Set the working directory
+
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY . /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install the required packages
-RUN pip install -r requirements.txt
+COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=production
+
+CMD ["flask", "run", "--host=0.0.0.0"]
