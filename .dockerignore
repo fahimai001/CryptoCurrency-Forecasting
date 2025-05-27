@@ -8,5 +8,4 @@ venv/
 .env
 *.log
 data/
-artifacts/
 prediction.json

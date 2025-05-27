@@ -12,9 +12,10 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 app = Flask(__name__, template_folder=TEMPLATES_DIR, static_folder=STATIC_DIR)
 
 def load_artifacts(prefix):
-    scaler_path = os.path.join('../artifacts', f'{prefix}_scaler.pkl')
-    xgb_path    = os.path.join('../artifacts', f'{prefix}_xgboost.pkl')
-    lr_path     = os.path.join('../artifacts', f'{prefix}_linear.pkl')
+    artifacts_dir = os.path.join(BASE_DIR, 'artifacts')
+    scaler_path = os.path.join(artifacts_dir, f'{prefix}_scaler.pkl')
+    xgb_path    = os.path.join(artifacts_dir, f'{prefix}_xgboost.pkl')
+    lr_path     = os.path.join(artifacts_dir, f'{prefix}_linear.pkl')
     with open(scaler_path, 'rb') as f:
         scaler = pickle.load(f)
     with open(xgb_path, 'rb') as f:
@@ -22,6 +23,7 @@ def load_artifacts(prefix):
     with open(lr_path, 'rb') as f:
         lr = pickle.load(f)
     return scaler, xgb, lr
+
 
 ARTIFACTS = {
     'BTC': load_artifacts('btc'),
