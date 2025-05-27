@@ -5,12 +5,16 @@ import pickle
 import os
 from datetime import datetime
 
-app = Flask(__name__)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
+app = Flask(__name__, template_folder=TEMPLATES_DIR, static_folder=STATIC_DIR)
 
 def load_artifacts(prefix):
-    scaler_path = os.path.join('artifacts', f'{prefix}_scaler.pkl')
-    xgb_path    = os.path.join('artifacts', f'{prefix}_xgboost.pkl')
-    lr_path     = os.path.join('artifacts', f'{prefix}_linear.pkl')
+    scaler_path = os.path.join('../artifacts', f'{prefix}_scaler.pkl')
+    xgb_path    = os.path.join('../artifacts', f'{prefix}_xgboost.pkl')
+    lr_path     = os.path.join('../artifacts', f'{prefix}_linear.pkl')
     with open(scaler_path, 'rb') as f:
         scaler = pickle.load(f)
     with open(xgb_path, 'rb') as f:
@@ -79,4 +83,4 @@ def index():
     return render_template('index.html', result=result)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')

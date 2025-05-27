@@ -2,14 +2,22 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY flask_app/requirements.txt /app/requirements.txt
 
-COPY . .
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+RUN pip install gunicorn
+
+COPY flask_app /app/flask_app
+
+COPY artifacts /app/artifacts
+
+COPY templates /app/templates
+
+COPY static /app/static
+
+WORKDIR /app/flask_app
 
 EXPOSE 5000
 
-ENV FLASK_APP=app.py
-ENV FLASK_ENV=production
-
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
